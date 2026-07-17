@@ -11,9 +11,13 @@ from app.db.base import Base
 
 
 class ConditionKey(str, enum.Enum):
+    HR_NORMAL = "HR_NORMAL"
     HR_HIGH = "HR_HIGH"
     HR_LOW = "HR_LOW"
+
+    SPO2_NORMAL = "SPO2_NORMAL"
     SPO2_LOW = "SPO2_LOW"
+
     INACTIVITY = "INACTIVITY"
     NO_DATA = "NO_DATA"
     DEVICE_DISCONNECTED = "DEVICE_DISCONNECTED"

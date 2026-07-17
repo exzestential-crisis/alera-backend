@@ -49,7 +49,7 @@ def update_condition_tracker(
             active_tracker.last_seen_at = event.recorded_at
             active_tracker.updated_at = now
 
-        db.commit()
+        db.flush()
 
         return trackers[0]
 
@@ -80,7 +80,6 @@ def update_condition_tracker(
         ):
             tracker.confirmed_at = now
 
-    db.commit()
-    db.refresh(tracker)
+    db.flush()
 
     return tracker

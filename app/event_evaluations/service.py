@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
+from app.condition_trackers.service import update_condition_tracker
 from app.event_evaluations.model import (
     ConditionKey,
     EvaluationSeverity,
@@ -10,7 +11,6 @@ from app.event_evaluations.model import (
 )
 from app.health_events.model import HealthEvent, MetricType
 from app.patients.model import ElderlyPatient
-from app.condition_trackers.service import update_condition_tracker
 
 
 def evaluate_heart_rate_event(
@@ -35,9 +35,11 @@ def evaluate_heart_rate_event(
         threshold = Decimal("150")
         new_state = MonitoringState.CRITICAL
         severity = EvaluationSeverity.CRITICAL
-        reason = f"Heart rate {value} bpm exceeded the critical threshold of 150 bpm."
+        reason = (
+            f"Heart rate {value} bpm exceeded the critical threshold of " f"150 bpm."
+        )
 
-    elif patient.normal_hr_max is not None and value > patient.normal_hr_max:
+    elif value > patient.normal_hr_max:
         condition = ConditionKey.HR_HIGH
         threshold = Decimal(patient.normal_hr_max)
         new_state = MonitoringState.ELEVATED
@@ -47,7 +49,7 @@ def evaluate_heart_rate_event(
             f"of {patient.normal_hr_max} bpm."
         )
 
-    elif patient.normal_hr_min is not None and value < patient.normal_hr_min:
+    elif value < patient.normal_hr_min:
         condition = ConditionKey.HR_LOW
         threshold = Decimal(patient.normal_hr_min)
         new_state = MonitoringState.ELEVATED
@@ -78,8 +80,10 @@ def evaluate_heart_rate_event(
     )
 
     db.add(evaluation)
-    db.commit()
-    db.refresh(evaluation)
+
+    # Assigns the generated evaluation_id while keeping
+    # the overall ingestion transaction open.
+    db.flush()
 
     update_condition_tracker(
         db=db,
@@ -88,3 +92,20 @@ def evaluate_heart_rate_event(
     )
 
     return evaluation
+
+
+def evaluate_event(
+    db: Session,
+    event: HealthEvent,
+) -> EventEvaluation | None:
+    """
+    Dispatches a health event to the appropriate metric evaluator.
+    """
+
+    if event.metric_type == MetricType.HEART_RATE:
+        return evaluate_heart_rate_event(
+            db=db,
+            event=event,
+        )
+
+    return None
