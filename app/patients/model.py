@@ -73,8 +73,18 @@ class ElderlyPatient(Base):
         default=100,
         server_default="100",
     )
-    usual_spo2_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
-    usual_spo2_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+
+    usual_spo2_min: Mapped[int] = mapped_column(
+        SmallInteger,
+        nullable=False,
+        default=95,
+        server_default="95",
+    )
+
+    usual_spo2_max: Mapped[int | None] = mapped_column(
+        SmallInteger,
+        nullable=True,
+    )
 
     health_platform: Mapped[HealthPlatform] = mapped_column(
         Enum(HealthPlatform, name="health_platform"),
