@@ -6,6 +6,7 @@ from sqlalchemy import Date, DateTime, Enum, ForeignKey, SmallInteger, String, T
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.core.time import utc_now
 from app.db.base import Base
 
 
@@ -109,14 +110,14 @@ class ElderlyPatient(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=datetime.now,
+        default=utc_now,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
+        default=utc_now,
+        onupdate=utc_now,
     )
 
     archived_at: Mapped[datetime | None] = mapped_column(

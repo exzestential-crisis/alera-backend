@@ -1,9 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.condition_trackers.model import ConditionTracker
+from app.core.time import utc_now
 from app.event_evaluations.model import (
     ConditionKey,
     EventEvaluation,
@@ -33,7 +34,7 @@ def update_condition_tracker(
     event: HealthEvent,
     evaluation: EventEvaluation,
 ) -> ConditionTracker | None:
-    now = datetime.now(timezone.utc)
+    now = utc_now()
 
     if evaluation.new_state == MonitoringState.STABLE:
         return resolve_metric_conditions(

@@ -5,6 +5,7 @@ from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.core.time import utc_now
 from app.db.base import Base
 from app.event_evaluations.model import ConditionKey
 
@@ -71,6 +72,6 @@ class ConditionTracker(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
+        default=utc_now,
+        onupdate=utc_now,
     )
