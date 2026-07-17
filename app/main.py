@@ -1,23 +1,27 @@
-import app.db.models
 from fastapi import FastAPI
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.health_events.router import router as health_event_router
 
-settings = get_settings()
 
-app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
-)
+def create_app(settings: Settings | None = None) -> FastAPI:
+    app_settings = settings or get_settings()
+    application = FastAPI(
+        title=app_settings.app_name,
+        version=app_settings.app_version,
+    )
+    application.state.settings = app_settings
+    application.include_router(health_event_router)
 
-app.include_router(health_event_router)
+    @application.get("/health")
+    def health_check() -> dict[str, str]:
+        return {
+            "status": "healthy",
+            "service": app_settings.app_name,
+            "environment": app_settings.environment,
+        }
+
+    return application
 
 
-@app.get("/health")
-def health_check() -> dict[str, str]:
-    return {
-        "status": "healthy",
-        "service": settings.app_name,
-        "environment": settings.environment,
-    }
+app = create_app()

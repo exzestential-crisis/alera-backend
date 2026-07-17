@@ -1,7 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.health_events.errors import (
+    ExternalEventConflictError,
+    HealthEventConstraintError,
+    PatientNotFoundError,
+)
 from app.health_events.schema import (
     HealthEventCreate,
     HealthEventResponse,
@@ -22,4 +27,20 @@ def create_event(
     event: HealthEventCreate,
     db: Session = Depends(get_db),
 ):
-    return create_health_event(db, event)
+    try:
+        return create_health_event(db, event)
+    except PatientNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+    except ExternalEventConflictError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+    except HealthEventConstraintError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
