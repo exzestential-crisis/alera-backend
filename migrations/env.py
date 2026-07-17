@@ -1,15 +1,12 @@
 from logging.config import fileConfig
+
+import app.db.models
 from app.db.base import Base
-from app.users import model as user_model
-from app.households import model as household_model
-from app.patients import model as patient_model
-from app.health_events import model as health_event_model
-from app.event_evaluations.model import EventEvaluation
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

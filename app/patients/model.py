@@ -60,8 +60,19 @@ class ElderlyPatient(Base):
     doctor_info: Mapped[str | None] = mapped_column(Text, nullable=True)
     health_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    normal_hr_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
-    normal_hr_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    normal_hr_min: Mapped[int] = mapped_column(
+        SmallInteger,
+        nullable=False,
+        default=60,
+        server_default="60",
+    )
+
+    normal_hr_max: Mapped[int] = mapped_column(
+        SmallInteger,
+        nullable=False,
+        default=100,
+        server_default="100",
+    )
     usual_spo2_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     usual_spo2_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
 

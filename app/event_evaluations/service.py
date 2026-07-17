@@ -10,6 +10,7 @@ from app.event_evaluations.model import (
 )
 from app.health_events.model import HealthEvent, MetricType
 from app.patients.model import ElderlyPatient
+from app.condition_trackers.service import update_condition_tracker
 
 
 def evaluate_heart_rate_event(
@@ -79,5 +80,11 @@ def evaluate_heart_rate_event(
     db.add(evaluation)
     db.commit()
     db.refresh(evaluation)
+
+    update_condition_tracker(
+        db=db,
+        event=event,
+        evaluation=evaluation,
+    )
 
     return evaluation
